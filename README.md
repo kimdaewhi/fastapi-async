@@ -1,4 +1,4 @@
-## fastapi 패키지 설치
+## fastapi 패키지 설치 & 실행
 ```bash
 pip install requirements.txt
 uvicorn sql_app.main:app
