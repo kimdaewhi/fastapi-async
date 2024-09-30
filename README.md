@@ -6,6 +6,7 @@ pip install requirements.txt
 ## powershell에서 다음 명령어 실행
 ```bash
 Start-Job { Invoke-WebRequest http://127.0.0.1:8000/sync }
+Start-Job { Invoke-WebRequest http://127.0.0.1:8000/sync }
 ```
 
 <hr/>
