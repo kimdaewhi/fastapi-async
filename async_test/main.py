@@ -4,11 +4,22 @@ import threading
 
 app = FastAPI()
 
-# Start-Job { Invoke-WebRequest http://127.0.0.1:8000/sync } 테스트
+# Start-Job { Invoke-WebRequest http://127.0.0.1:8000/sync }
 @app.get("/sync")
 def sync():
     tid = threading.get_ident()
 
     print(f"Hello {tid}")
-    time.sleep(2)
+    time.sleep(1)
+    print(f"Bye {tid}")
+
+
+
+# Start-Job { Invoke-WebRequest http://127.0.0.1:8000/async }
+@app.get("/async")
+async def sync():
+    tid = threading.get_ident()
+
+    print(f"Hello {tid}")
+    time.sleep(1)
     print(f"Bye {tid}")
