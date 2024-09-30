@@ -1,6 +1,7 @@
 ## fastapi 패키지 설치
 ```bash
 pip install requirements.txt
+uvicorn sql_app.main:app
 ```
 
 ## powershell에서 다음 명령어 실행
