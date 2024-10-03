@@ -1,58 +1,26 @@
 from typing import List
-
-import databases
-import sqlalchemy
-from fastapi import FastAPI
-from pydantic import BaseModel
-
-
-DATABASE_URL = f"postgresql://postgres:1q2w3e4r!!@localhost:5432/postgres"
-
-database = databases.Database(DATABASE_URL)
-
-metadata = sqlalchemy.MetaData()
-
-notes = sqlalchemy.Table(
-    "notes",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("text", sqlalchemy.String),
-    sqlalchemy.Column("completed", sqlalchemy.Boolean),
-)
-
-engine = sqlalchemy.create_engine(DATABASE_URL)
-metadata.create_all(engine)
-
-class NoteIn(BaseModel):
-    text: str
-    completed: bool
-
-class Note(BaseModel):
-    id: int
-    text: str
-    completed: bool
+from fastapi import FastAPI, Depends, HTTPException
+from sql_app_async import models, schemas, database
 
 app = FastAPI()
 
-
 @app.on_event("startup")
 async def startup():
-    await database.connect()
-
+    await database.database.connect()
 
 @app.on_event("shutdown")
-async def read_notes():
-    await database.disconnect()
+async def shutdown():
+    await database.database.disconnect()
 
+# 비동기 DB 세션을 의존성 주입으로 사용
+@app.get("/notes/", response_model=List[schemas.Note])
+async def read_notes(skip: int = 0, limit: int = 10, db = Depends(database.get_db)):
+    query = models.Note.__table__.select().offset(skip).limit(limit)
+    notes = await db.fetch_all(query)  # 비동기 처리
+    return notes
 
-@app.get("/notes/", response_model=List[Note])
-async def read_notes():
-    query = notes.select()
-    return await database.fetch_all(query)
-
-
-@app.post("/notes/", response_model=Note)
-async def create_note(note: NoteIn):
-    query = notes.insert().values(text=note.text, completed=note.completed)
-    last_record_id = await database.execute(query)
+@app.post("/notes/", response_model=schemas.Note)
+async def create_note(note: schemas.NoteCreate, db = Depends(database.get_db)):
+    query = models.Note.__table__.insert().values(text=note.text, completed=note.completed)
+    last_record_id = await db.execute(query)  # 비동기 처리
     return {**note.model_dump(), "id": last_record_id}
