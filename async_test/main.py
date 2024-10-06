@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 import time
 import threading
+import asyncio
 
 app = FastAPI()
 
@@ -21,5 +22,5 @@ async def sync():
     tid = threading.get_ident()
 
     print(f"Hello {tid}")
-    time.sleep(1)
+    await asyncio.sleep(1)
     print(f"Bye {tid}")
