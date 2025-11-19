@@ -5,11 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File",
+            "name": "FastAPI Debug",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
+            "module": "uvicorn",
+            "args": [
+                "async_test.main:app",        // 🔴 핵심
+                "--host", "0.0.0.0",
+                "--port", "8001",
+                "--reload"
+            ],
+            "cwd": "${workspaceFolder}",      // 🔴 필수
+            "jinja": true,
+            "justMyCode": true
         }
     ]
 }
